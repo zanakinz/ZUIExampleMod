@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>ZUIExampleMod</AssemblyName>
+    <Description>Example mod demonstrating ZUI API usage with buttons and submenus (ZUI optional)</Description>
+    <Version>1.0.0</Version>
+    <Authors>YourName</Authors>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>ZUIExampleMod</RootNamespace>
+    <BepInExVersion>6.0.0-be.733</BepInExVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- BepInEx dependency -->
+    <PackageReference Include="BepInEx.Unity.IL2CPP" Version="$(BepInExVersion)" IncludeAssets="compile" />
+    
+    <!-- VRising dependency -->
+    <PackageReference Include="VRising.Unhollowed.Client" Version="1.1.8.9179701" />
+  </ItemGroup>
+
+  <!-- Optional ZUI reference - mod will work without it but UI features will be disabled -->
+  <ItemGroup Condition="Exists('..\ZUI\bin\Debug\net6.0\ZUI.dll')">
+    <Reference Include="ZUI">
+      <HintPath>..\ZUI\bin\Debug\net6.0\ZUI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugType>Full</DebugType>
+  </PropertyGroup>
+
+</Project>
