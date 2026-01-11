@@ -7,7 +7,6 @@ A simple example mod demonstrating how to use the **ZUI API** for VRising mods.
 ## Features
 
 This example mod demonstrates:
-- **ZUI Soft Dependency** - Works with or without ZUI installed
 - **Category Registration** - Using `ZUI.AddCategory()`
 - **Button Registration** - Using `ZUI.AddButton()`
 - **Multiple Categories** - Shows how to organize buttons into groups
