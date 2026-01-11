@@ -2,24 +2,24 @@
 
 A simple example mod demonstrating how to use the **ZUI API** for VRising mods.
 
-**?? Purpose:** This mod showcases how to register categories and buttons with ZUI's API.
+**Purpose:** This mod showcases how to register categories and buttons with ZUI's API.
 
-## ?? Features
+## Features
 
 This example mod demonstrates:
-- ? **ZUI Soft Dependency** - Works with or without ZUI installed
-- ? **Category Registration** - Using `ZUI.AddCategory()`
-- ? **Button Registration** - Using `ZUI.AddButton()`
-- ? **Multiple Categories** - Shows how to organize buttons into groups
+- **ZUI Soft Dependency** - Works with or without ZUI installed
+- **Category Registration** - Using `ZUI.AddCategory()`
+- **Button Registration** - Using `ZUI.AddButton()`
+- **Multiple Categories** - Shows how to organize buttons into groups
 
-## ?? Requirements
+## Requirements
 
 - **VRising** game installed
 - **BepInEx 6.0.0-be.733** (IL2CPP version)
 - **ZUI Core Mod** (REQUIRED for this showcase)
 - **.NET 6.0** SDK for building
 
-## ??? Setup Instructions
+## Setup Instructions
 
 ### 1. Build the Project
 
@@ -34,7 +34,7 @@ Copy the compiled `ZUIExampleMod.dll` to your VRising BepInEx plugins folder:
 <VRising Install>/BepInEx/plugins/
 ```
 
-## ?? What This Does
+## What This Does
 
 When you load the game with ZUI installed, this mod:
 
@@ -46,14 +46,14 @@ When you load the game with ZUI installed, this mod:
 
 You'll see in the Mods menu:
 ```
-?? ZUIExample
-  ?? Example
-    ?? Test
-  ?? Example 2
-    ?? Example
+ ZUIExample
+   Example
+     Test
+   Example 2
+     Example
 ```
 
-## ?? The Core Code
+## The Core Code
 
 Here's the entire implementation in `Plugin.cs`:
 
@@ -77,16 +77,16 @@ private void RegisterWithZUI()
 
 **That's it!** Simple and clean.
 
-## ?? Project Structure
+## Project Structure
 
 ```
 ZUIExampleMod/
-??? Plugin.cs              # Main plugin - registers categories & buttons
-??? MyPluginInfo.cs        # Plugin metadata
-??? ZUIExampleMod.csproj   # Project configuration
+Plugin.cs              # Main plugin - registers categories & buttons
+MyPluginInfo.cs        # Plugin metadata
+ZUIExampleMod.csproj   # Project configuration
 ```
 
-## ?? How to Adapt This for Your Mod
+## How to Adapt This for Your Mod
 
 ### Step 1: Set Your Plugin Name
 
@@ -138,7 +138,7 @@ private void RegisterWithZUI()
 }
 ```
 
-## ?? ZUI API Methods Used
+## ZUI API Methods Used
 
 ### `ZUI.SetPlugin(string pluginName)`
 Sets your plugin's display name in ZUI. Call this FIRST before adding categories.
@@ -152,11 +152,11 @@ Adds a button to the current category.
 - **command**: Chat command to execute when clicked (e.g., ".heal")
 - **tooltip**: (Optional) Hover text
 
-## ?? Troubleshooting
+## Troubleshooting
 
 **Mod loads but no UI appears:**
 - Make sure ZUI is installed and loaded
-- Check console for "? ZUI detected!" message
+- Check console for "ZUI detected!" message
 - Verify ZUI version is compatible
 
 **"ZUI not found" warning:**
@@ -168,17 +168,17 @@ Adds a button to the current category.
 - ZUI.dll reference is optional (conditional in csproj)
 - Check that all dependencies are correct
 
-## ?? Design Philosophy
+## Design Philosophy
 
 This example mod demonstrates **minimalism**:
-- ? No complex logic
-- ? No command handlers
-- ? Just shows how to use the ZUI API
-- ? Perfect template for your own mods
+- No complex logic
+- No command handlers
+- Just shows how to use the ZUI API
+- Perfect template for your own mods
 
 Start here, then add your own functionality!
 
-## ?? Next Steps
+## Next Steps
 
 1. **Clone this example**
 2. **Change the plugin name** in `MyPluginInfo.cs`
@@ -186,13 +186,13 @@ Start here, then add your own functionality!
 4. **Implement your chat commands** in your mod
 5. **Build and deploy!**
 
-## ?? License
+## License
 
 This is example code for educational purposes. Modify and use as needed!
 
-## ?? Credits
+## Credits
 
 - **ZUI API** by Zanakinz
 - Example implementation for the VRising modding community
 
-Happy modding! ???
+Happy modding!
