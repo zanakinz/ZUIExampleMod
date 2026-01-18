@@ -1,102 +1,76 @@
 using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
+using System;
 using System.Linq;
+using System.Reflection;
 
 namespace ZUIExampleMod
 {
-    [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
+    [BepInPlugin("com.yourname.zuiexample", "ZUI Example Mod", "1.0.0")]
     [BepInDependency("Zanakinz.ZUI", BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BasePlugin
     {
         public static ManualLogSource LogInstance { get; private set; }
+        private static Type _zui;
 
         public override void Load()
         {
             LogInstance = Log;
-            Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} v{MyPluginInfo.PLUGIN_VERSION} is loading...");
+            Log.LogInfo("Loading Example Mod...");
 
-            // Check if ZUI is available and register UI
-            if (IsZUIAvailable())
+            if (InitZUI())
             {
-                Log.LogInfo("? ZUI detected! Registering categories and buttons...");
-                RegisterWithZUI();
-            }
-            else
-            {
-                Log.LogWarning("? ZUI not found. This is a UI showcase mod - ZUI is required.");
-            }
-
-            Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} loaded successfully!");
-        }
-
-        private bool IsZUIAvailable()
-        {
-            try
-            {
-                return IL2CPPChainloader.Instance.Plugins.ContainsKey("Zanakinz.ZUI");
-            }
-            catch
-            {
-                return false;
+                CreateSimpleUI();
+                CreateCustomUI();
             }
         }
 
-        private void RegisterWithZUI()
+        private bool InitZUI()
         {
-            try
-            {
-                // Get ZUI assembly and API.ZUI class (not Plugin class!)
-                var zuiAssembly = System.AppDomain.CurrentDomain.GetAssemblies()
-                    .FirstOrDefault(a => a.GetName().Name == "ZUI");
+            if (!IL2CPPChainloader.Instance.Plugins.ContainsKey("Zanakinz.ZUI")) return false;
+            var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == "ZUI");
+            _zui = assembly?.GetType("ZUI.API.ZUI");
+            return _zui != null;
+        }
 
-                if (zuiAssembly == null)
-                {
-                    LogInstance.LogError("Could not find ZUI assembly");
-                    return;
-                }
+        private void Call(string name, params object[] args)
+        {
+            if (_zui == null) return;
+            var method = _zui.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                             .FirstOrDefault(m => m.Name == name && m.GetParameters().Length == args.Length);
+            if (method != null) method.Invoke(null, args);
+            else LogInstance.LogError($"Could not find ZUI method '{name}' with {args.Length} parameters.");
+        }
 
-                // The API methods are in ZUI.API.ZUI class, not ZUI.Plugin
-                var zuiApiType = zuiAssembly.GetType("ZUI.API.ZUI");
-                if (zuiApiType == null)
-                {
-                    LogInstance.LogError("Could not find ZUI.API.ZUI type");
-                    return;
-                }
+        // --- PART 1: Legacy Buttons (In Main Menu) ---
+        private void CreateSimpleUI()
+        {
+            Call("SetPlugin", "ZUI Example");
+            Call("SetTargetWindow", "Main");
 
-                // Get methods from the API class
-                var setPluginMethod = zuiApiType.GetMethod("SetPlugin", 
-                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
-                var addCategoryMethod = zuiApiType.GetMethod("AddCategory", 
-                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
-                var addButtonMethod = zuiApiType.GetMethod("AddButton", 
-                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+            Call("AddCategory", "Simple Stuff");
+            Call("AddButton", "Hello World", ".say Hello");
+            Call("AddButton", "Kill Self", ".kill");
+        }
 
-                if (setPluginMethod == null || addCategoryMethod == null || addButtonMethod == null)
-                {
-                    LogInstance.LogError("Could not find ZUI API methods");
-                    LogInstance.LogError($"SetPlugin: {setPluginMethod != null}, AddCategory: {addCategoryMethod != null}, AddButton: {addButtonMethod != null}");
-                    return;
-                }
+        // --- PART 2: Custom Windows ---
+        private void CreateCustomUI()
+        {
+            // Custom Canvas UI - 500x350
+            Call("SetPlugin", "YourPluginName");
+            Call("SetTargetWindow", "YourWindowName");
+            Call("SetUI", 500, 350);
+            Call("HideTitleBar"); // Optional
 
-                // Set your plugin name
-                setPluginMethod.Invoke(null, new object[] { "ZUIExample" });
-
-                // Example category
-                addCategoryMethod.Invoke(null, new object[] { "Example" });
-                addButtonMethod.Invoke(null, new object[] { "Test", ".ignorethis", "" });
-
-                // Example 2 category
-                addCategoryMethod.Invoke(null, new object[] { "Example2" });
-                addButtonMethod.Invoke(null, new object[] { "Example", ".ignorethis", "" });
-
-                LogInstance.LogInfo("Registered with ZUI successfully!");
-            }
-            catch (System.Exception ex)
-            {
-                LogInstance.LogError($"Failed to register with ZUI: {ex.Message}");
-                LogInstance.LogError($"Stack trace: {ex.StackTrace}");
-            }
+            Call("SetTitle", "<color=#B30000>ZUIExampleMod</color>");
+            Call("AddText", "<color=#61c200>You can create your own custom UI</color>", 15f, 210f);
+            Call("AddText", "<color=#61c200>with relative ease using this!</color>", 15f, 230f);
+            Call("AddButton", "Test", ".ignorethis", 320f, 220f);
+            Call("AddCategory", "<color=#ffd700>README:</color>", 15f, 190f);
+            Call("AddCategory", "<color=#ffd700>COMMANDS:</color>", 315f, 190f);
+            Call("AddImage", "CHANGENAME.png", 20f, 40f, 460f, 150f);
+            Call("AddButton", "Long", ".ignorethis", 20f, 280f, 460f, 20f);
         }
     }
 }
