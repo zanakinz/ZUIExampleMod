@@ -4,6 +4,6 @@ namespace ZUIExampleMod
     {
         public const string PLUGIN_GUID = "com.yourname.zuiexample";
         public const string PLUGIN_NAME = "ZUI Example Mod";
-        public const string PLUGIN_VERSION = "1.0.0";
+        public const string PLUGIN_VERSION = "1.1.0";
     }
 }

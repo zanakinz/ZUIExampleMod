@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace ZUIExampleMod
 {
-    [BepInPlugin("com.yourname.zuiexample", "ZUI Example Mod", "1.0.0")]
+    [BepInPlugin("com.yourname.zuiexample", "ZUI Example Mod", "1.1.0")]
     [BepInDependency("Zanakinz.ZUI", BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BasePlugin
     {
