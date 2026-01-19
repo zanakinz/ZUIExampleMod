@@ -1,14 +1,16 @@
 # ZUI Example Mod for VRising
 
-A comprehensive example mod demonstrating how to use the **ZUI API** for VRising mods, including both legacy button integration and custom UI window creation.
+A comprehensive example mod demonstrating how to use the **ZUI API** for VRising mods, including legacy button integration, custom UI window creation, and **server-side packet-based UI creation**.
 
-**Purpose:** This mod showcases two different approaches to using ZUI - adding buttons to the main menu and creating fully custom UI windows.
+**Purpose:** This mod showcases three different approaches to using ZUI - adding buttons to the main menu, creating fully custom UI windows, and simulating server-side UI packets.
 
 ## Features
 
 This example mod demonstrates:
 - **Legacy Button Registration** - Adding buttons to ZUI's main menu
 - **Custom UI Windows** - Creating your own standalone UI windows with custom layouts
+- **Server-Side UI Packets** - Simulating how server mods can create UIs via chat packets
+- **Dynamic Image Loading** - Loading images from web URLs
 - **UI Customization** - Positioning elements, adding images, colored text, and more
 - **Reflection-based API calls** - Safe integration with ZUI as a soft dependency
 
@@ -43,13 +45,14 @@ If you want to test the image functionality:
 
 ## 💡 What This Does
 
-When you load the game with ZUI installed, this mod creates two different UI demonstrations:
+When you load the game with ZUI installed, this mod creates three different UI demonstrations:
 
 ### Part 1: 🔘 Legacy Buttons (Main Menu Integration)
 
-Adds a "Simple Stuff" category to ZUI's main menu with two buttons:
+Adds a "Simple Stuff" category to ZUI's main menu with buttons:
 - **Hello World** - Executes `.say Hello` command
 - **Kill Self** - Executes `.kill` command
+- **Test Server Packet** - Triggers the server-side UI packet simulation
 
 ### Part 2: 🎨 Custom UI Window
 
@@ -59,6 +62,16 @@ Creates a completely custom 500x350 pixel window named "YourWindowName" featurin
 - **Categories** for organization (README and COMMANDS sections)
 - **Buttons** at specific positions
 - **Image display** capability
+
+### Part 3: 📡 Server-Side Packet Simulation
+
+Demonstrates how a **server-only mod** would create a UI by sending JSON packets via chat:
+- **Dynamic window creation** via packets
+- **Image downloading from URLs** (RegisterImage packet)
+- **Custom positioned buttons** with size control
+- **Automatic window opening** via Open packet
+
+This simulation shows how server mods can create UIs without players needing the mod installed - only ZUI is required on the client.
 
 ## 🔧 The Core Code
 
@@ -89,6 +102,59 @@ private void CreateCustomUI()
     Call("AddButton", "Test", ".ignorethis", 320f, 220f);
     Call("AddCategory", "<color=#ffd700>README:</color>", 15f, 190f);
     Call("AddImage", "CHANGENAME.png", 20f, 40f, 460f, 150f);
+}
+```
+
+### Server-Side Packet Approach
+
+```csharp
+private void CreateUI_ViaPackets()
+{
+    // 1. Setup window
+    SendPacket("SetPlugin", new Dictionary<string, string> { { "Plugin", "ServerPacketWindow" } });
+    SendPacket("SetTargetWindow", new Dictionary<string, string> { { "Window", "RemoteUI" } });
+    SendPacket("SetUICustom", new Dictionary<string, string> { { "W", "500" }, { "H", "400" } });
+    SendPacket("SetTitle", new Dictionary<string, string> { { "Text", "<color=#00FFFF>Server Streamed UI</color>" } });
+
+    // 2. Register image from URL
+    SendPacket("RegisterImage", new Dictionary<string, string> {
+        { "Name", "remote_banner.png" },
+        { "Url", "https://yourdomain.com/banner.png" }
+    });
+
+    // 3. Use the downloaded image
+    SendPacket("AddImage", new Dictionary<string, string> {
+        { "Img", "remote_banner.png" },
+        { "X", "200" }, { "Y", "50" },
+        { "W", "100" }, { "H", "100" }
+    });
+
+    // 4. Add content
+    SendPacket("AddText", new Dictionary<string, string> {
+        { "Text", "This image was downloaded from the web!" },
+        { "X", "120" }, { "Y", "160" }
+    });
+
+    // 5. Custom button with size
+    SendPacket("AddButton", new Dictionary<string, string> {
+        { "Text", "Wide Server Button" },
+        { "Cmd", ".say clicked" },
+        { "X", "50" }, { "Y", "200" },
+        { "W", "400" }, { "H", "40" }
+    });
+
+    // 6. Force open
+    SendPacket("Open", new Dictionary<string, string>());
+}
+
+private void SendPacket(string type, Dictionary<string, string> data)
+{
+    var packet = new { Type = type, Plugin = "ServerPacketWindow", Window = "RemoteUI", Data = data };
+    string json = JsonSerializer.Serialize(packet);
+    string message = "[[ZUI]]" + json;
+    
+    // In a real server mod: ServerChatUtils.SendSystemMessageToUser(userEntity, message);
+    // This example simulates it by directly calling PacketService
 }
 ```
 
@@ -129,6 +195,29 @@ Call("AddButton", "Click Me", ".command", 10f, 50f, 200f, 30f);
 Call("AddImage", "logo.png", 10f, 100f, 580f, 200f);
 ```
 
+### Approach 3: Server-Side UI (For Server Mods)
+
+Create UIs from the server without requiring client mods:
+
+```csharp
+// In your server mod (no ZUI.dll dependency needed)
+private void SendZUIPacket(string type, Dictionary<string, string> data)
+{
+    var packet = new { Type = type, Plugin = "MyServerMod", Window = "ServerUI", Data = data };
+    string json = JsonSerializer.Serialize(packet);
+    string message = "[[ZUI]]" + json;
+    ServerChatUtils.SendSystemMessageToUser(userEntity, message);
+}
+
+// Create UI
+SendZUIPacket("SetUICustom", new Dictionary<string, string> { { "W", "500" }, { "H", "300" } });
+SendZUIPacket("AddButton", new Dictionary<string, string> {
+    { "Text", "Server Button" }, { "Cmd", ".command" },
+    { "X", "20" }, { "Y", "100" }, { "W", "200" }, { "H", "40" }
+});
+SendZUIPacket("Open", new Dictionary<string, string>());
+```
+
 ## 📚 ZUI API Methods Demonstrated
 
 | Method | Description | Usage |
@@ -144,6 +233,9 @@ Call("AddImage", "logo.png", 10f, 100f, 580f, 200f);
 | `AddButton(string, string, float, float, float, float)` | Adds button with position (X, Y) and size (W, H) | `Call("AddButton", "Long", ".cmd", 20f, 280f, 460f, 20f);` |
 | `AddText(string, float, float)` | Adds text at specific X, Y coordinates | `Call("AddText", "Hello!", 15f, 210f);` |
 | `AddImage(string, float, float, float, float)` | Adds image with filename, X, Y, width, height | `Call("AddImage", "logo.png", 20f, 40f, 460f, 150f);` |
+| `RegisterImage(string, string)` | Registers a web image for download (server-side) | `SendPacket("RegisterImage", ...)` |
+| `SetUICustom(int, int)` | Alternative to SetUI (used in packets) | `SendPacket("SetUICustom", ...)` |
+| `Open()` | Forces a window to open (server-side) | `SendPacket("Open", ...)` |
 
 ### 🎨 Custom UI Design Tool
 
@@ -206,8 +298,9 @@ ZUI supports Unity Rich Text color tags:
 This example demonstrates:
 - **Soft dependency pattern** - Works even if ZUI isn't installed
 - **Reflection-based API access** - No compile-time dependency on ZUI.dll
-- **Two UI paradigms** - Both simple menu integration and complex custom windows
+- **Three UI paradigms** - Simple menu integration, complex custom windows, and server-side packets
 - **Practical examples** - Real positioning values you can copy and modify
+- **Server-side simulation** - Shows how server mods can control client UIs
 
 ## 🚶 Next Steps
 
@@ -216,8 +309,9 @@ This example demonstrates:
 3. **Choose your approach:**
    - Simple menu buttons → Modify `CreateSimpleUI()`
    - Custom window → Modify `CreateCustomUI()`
+   - Server-side UI → Adapt `CreateUI_ViaPackets()` for your server mod
 4. **Adjust positions and sizes** to fit your needs
-5. **Add your own images** (optional)
+5. **Add your own images** (local or web URLs)
 6. **Implement command handlers** in your mod
 7. **Build and deploy!**
 

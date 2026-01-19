@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>ZUIExampleMod</AssemblyName>
     <Description>Example mod demonstrating ZUI API usage with buttons, submenus, and custom windows.</Description>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
     <Authors>YourName</Authors>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
