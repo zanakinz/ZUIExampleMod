@@ -9,7 +9,7 @@ using System.Text.Json; // Required for Packet Serialization
 
 namespace ZUIExampleMod
 {
-    [BepInPlugin("com.yourname.zuiexample", "ZUI Example Mod", "1.1.0")]
+    [BepInPlugin("com.yourname.zuiexample", "ZUI Example Mod", "1.2.0")]
     [BepInDependency("Zanakinz.ZUI", BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BasePlugin
     {
